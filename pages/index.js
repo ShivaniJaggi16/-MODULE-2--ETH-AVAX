@@ -81,14 +81,7 @@ export default function Homepage() {
 
         setETH(contract);
     }
-}
-    
-     const DisplayAddress  = async() => {
-     if (mysmartcontract) {
-     let tx = await mysmartcontract.DisplayAddress();
-     await tx.wait()
-    ;
-  }
+
     const redeem = async () => {
         try {
           if (ETH) {
@@ -119,7 +112,6 @@ export default function Homepage() {
                <p style={{ color: 'Blue' }}>User Balance : {balance}</p>
                <h3><button onClick={deposit} style={{ color: 'Orange', background: 'blue' }}>Designate 1 ETH</button></h3>
                <h3><button onClick={withdraw} style={{ color: 'white', background: 'red' }}>Acquire 1 ETH</button></h3>
-               <button onClick={DisplayAddress}><h3 >Address Check</h3></button>
                <h3><button onClick={redeem} style={{ color: 'white', background: 'purple' }}>Assert</button></h3>
                <p style={{ color: 'Blue' }}>Asserted Value: {redeemedAmount}</p> {/* Display the redeemed amount */}
             </div>
