@@ -1,143 +1,196 @@
-import {useState,useEffect} from "react";
-import {ethers} from "ethers";
-import crypto_making_tree_abi from "../artifacts/contracts/ETH.sol/ETH.json";
+import { useState, useEffect } from "react";
+import { ethers } from "ethers";
+import crypto_making_tree_abi from "../artifacts/contracts/Hardhat.sol/Hardhat.json";
 
 export default function Homepage() {
+  const [meMessage, setMeMessage] = useState("Account Holder Name: Shivani Jaggi");
+  const [defaultAccount, setDefaultAccount] = useState(undefined);
+  const [balance, setBalance] = useState(undefined);
+  const [ethWallet, setEthWallet] = useState(undefined);
+  const [Hardhat, setHardhat] = useState(undefined); // it is the Hardhat
 
-    const [meMessage,setMeMessage] = useState("SHIVANI JAGGI");
-    const [defaultAccount,setDefaultAccount] = useState(undefined);
-    const [balance,setBalance] = useState(undefined);
-    const [ethWallet,setEthWallet] = useState(undefined); 
-    const [ETH,setETH] = useState(undefined); // it is the atm
-    const [redeemedAmount, setRedeemedAmount] = useState(0);
-    
-    const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-    const smcABI = crypto_making_tree_abi.abi;
+  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  const smcABI = crypto_making_tree_abi.abi;
 
-    const getBalance = async() => {
-        if(ETH) {
-            setBalance( (await ETH.getBalance()).toNumber());
-        }
+  const getBalance = async () => {
+    if (Hardhat) {
+      setBalance((await Hardhat.getBalance()).toNumber());
     }
+  };
 
-    const deposit = async() => {
-        if(ETH) {
-            let tx = await ETH.Deposite(1);
-            await tx.wait();
-            getBalance();
-        }
+  const topUp = async () => {
+    if (Hardhat) {
+      let tx = await Hardhat.topUp(1);
+      await tx.wait();
+      getBalance();
     }
+  };
 
-    const withdraw = async() => {
-        if (ETH) {
-            let tx = await ETH.Withdraw(1);
-            await tx.wait();
-            getBalance();
-        }
+  const cashOut = async () => {
+    if (Hardhat) {
+      let tx = await Hardhat.cashOut(1);
+      await tx.wait();
+      getBalance();
     }
+  };
 
-    const getWallet = async() => {
-        
-        if(window.ethereum){
-            setEthWallet(window.ethereum);
-            console.log("getwallet is executed");
-        }
-        
-
-        if(ethWallet){
-            const account = await ethWallet.request({method: "eth_accounts"});
-            accountHandler(account);
-        }
-    }
-
-    const accountHandler = async(accounts) => {
-        if(accounts){
-            console.log("Account connected =",accounts);
-            setDefaultAccount(accounts);
-        }
-        else {
-            console.log("No Account Found");
-        }
-    }
-
-    const connectWallettHandler = async() => {
-        if(!ethWallet){
-            alert("MetaMask Wallet is required to Connect");
-            return;
-        }
-        
-
-        const accounts = await ethWallet.request({ method: 'eth_requestAccounts' });
-
-        accountHandler(accounts);
-
-        getMyContract();
-    }
-    
-    const getMyContract = async() => {
-        const provider = new ethers.providers.Web3Provider(ethWallet);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, smcABI, signer);
-
-        setETH(contract);
-    }
-
-    const redeem = async () => {
-        try {
-          if (ETH) {
-            let tx = await ETH.Redeem();
-            await tx.wait();
-            setRedeemedAmount(balance); // Set the redeemed amount to the current balance
-            getBalance(); // Refresh the balance after redemption
-          }
-        } catch (error) {
-          console.error("Error while redeeming:", error.message);
-        }
-      };
-
-    const initUser = () => {
-        if(!ethWallet){
-            return <p>Please Install the MetaMask extension in your Browser</p>;
-        }
-
-        if(!defaultAccount){
-            return (<button onClick={connectWallettHandler}>Enable wallet for Ethereum contracts</button>)
-        }
-
+  const burn = async () => {
+    if (Hardhat) {
+      try {
+        const tx = await Hardhat.burn(1); // Replace "burn" with your actual burn function name
+        await tx.wait();
         getBalance();
+      } catch (error) {
+        console.error("Error burning tokens:", error);
+      }
+    }
+  };
 
-        return (
-            <div>
-                <h3 style={{ color: 'Black' }}>User Account : {defaultAccount}</h3>
-               <p style={{ color: 'Blue' }}>User Balance : {balance}</p>
-               <h3><button onClick={deposit} style={{ color: 'Orange', background: 'blue' }}>Designate 1 ETH</button></h3>
-               <h3><button onClick={withdraw} style={{ color: 'white', background: 'red' }}>Acquire 1 ETH</button></h3>
-               <h3><button onClick={redeem} style={{ color: 'white', background: 'purple' }}>Assert</button></h3>
-               <p style={{ color: 'Blue' }}>Asserted Value: {redeemedAmount}</p> {/* Display the redeemed amount */}
-            </div>
-        )
+  const verifyAddress = async () => {
+    if (Hardhat) {
+      try {
+        const result = await Hardhat.verifyAddress(defaultAccount[0]); // Replace with your verification logic
+        setVerificationResult(result); // Set the verification result
+      } catch (error) {
+        console.error("Error verifying address:", error);
+        setVerificationResult("Error verifying address");
+      }
+    }
+  };
+
+  const displayAddress = async () => {
+    if (Hardhat) {
+      let tx = await Hardhat.displayAddress();
+      await tx.wait();
+    }
+  };
+
+  const getWallet = async () => {
+    if (window.ethereum) {
+      setEthWallet(window.ethereum);
+      console.log("getwallet is executed");
     }
 
-    useEffect(() => {getWallet();}, []);
+    if (ethWallet) {
+      const account = await ethWallet.request({ method: "eth_accounts" });
+      accountHandler(account);
+    }
+  };
+
+  const accountHandler = async (accounts) => {
+    if (accounts) {
+      console.log("Account connected =", accounts);
+      setDefaultAccount(accounts);
+    } else {
+      console.log("Account Not Located");
+    }
+  };
+
+  const connectWallettHandler = async () => {
+    if (!ethWallet) {
+      alert("MetaMask Wallet is required to Connect");
+      return;
+    }
+
+    const accounts = await ethWallet.request({ method: "eth_requestAccounts" });
+
+    accountHandler(accounts);
+
+    getMyContract();
+  };
+
+  const getMyContract = async () => {
+    const provider = new ethers.providers.Web3Provider(ethWallet);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, smcABI, signer);
+
+    setHardhat(contract);
+  };
+
+  const initUser = () => {
+    if (!ethWallet) {
+      return <p>Don't forget to install the MetaMask browser extension for a smooth experience.</p>;
+    }
+    if (!defaultAccount) {
+      return (
+        <button
+          onClick={connectWallettHandler}
+          style={{ color: "white", background: "Red" }}
+        >
+          <h3>"Connect With Your Wallet"</h3>
+        </button>
+      );
+    }
+
+    getBalance();
 
     return (
-      <main className="Shivani">
-        <h1><marquee width="60%" direction="left" height="80%">Step into the world of Metacrafters ATM with a warm welcome!</marquee></h1>
-        <h2>{meMessage}</h2>
-        
-        {initUser()}
-        <style jsx>{`
-            .Shivani {
-            background-image: url("https://static.vecteezy.com/system/resources/thumbnails/018/871/933/small/icon-cloud-technology-or-blockchain-cloud-network-connection-access-to-all-devices-on-a-wireless-network-png.png");
-            background-position: center;
-            width: 1500px;
-            height: 800px;
-            background-color: Skin;
-            text-align: center;
-            color:  blue;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        `}
-        </style>
-      </main>
-    )    
+      <div>
+        <h3 style={{ color: "Black" }}>User Account : {defaultAccount}</h3>
+        <p style={{ color: "Blue" }}>User Balance : {balance}</p>
+        <button
+          onClick={displayAddress}
+          style={{ color: "white", background: "blue" }}
+        >
+          <h3 >Verify Address </h3>
+        </button>
+        <button
+          onClick={topUp}
+          style={{ color: "white", background: "pink" }}
+        >
+          <h3 >Top Up Balance</h3>
+        </button>
+        <button
+          onClick={cashOut}
+          style={{ color: "white", background: "green" }}
+        >
+          <h3>Cash Out</h3>
+        </button>
+        <button
+          onClick={burn}
+          style={{ color: "white", background: "red" }}
+        >
+          <h3>Burn 1 ETH</h3>
+        </button>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    getWallet();
+  }, []);
+
+  return (
+    <main className="Shivani">
+      <h1>
+        <marquee width="60%" direction="Left" height="80%">
+        Start your Metacrafters ATM experience with a friendly reception!
+        </marquee>
+      </h1>
+      <h2>{meMessage}</h2>
+
+      {initUser()}
+      <style jsx>{`
+        .Shivani {
+          background-image: url("https://image.pngaaa.com/518/1804518-small.png");
+          background-position: center;
+          background-size: cover;
+          /* Adjust this to control how the image is displayed */
+          width: 100%;
+          /* Make sure it covers the entire viewport width */
+          height: 100vh;
+          /* Make it cover the entire viewport height */
+          text-align: center;
+          color: black;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+      `}</style>
+    </main>
+  );
 }
+
+  
+     
+
+   
+            
