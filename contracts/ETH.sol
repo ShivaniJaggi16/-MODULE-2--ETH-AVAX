@@ -1,55 +1,55 @@
 // SPDX-License-Identifier: UNLICENSED
-
 pragma solidity ^0.8.7;
 
-contract ETH {
+contract Hardhat {
 
-    address payable public WalletAddress;
-    uint256 public Balance;
+    address payable public walletAddress;
+    uint256 public balance;
 
-    event showAddress(address walAdress);
-    event deposite(uint256 deposit_val,uint256 balance);
-    event withdraw(uint256 withdraw_val,uint256 balance);
-    event redeem(uint256 amount); // Add the redeem event
+    event ShowAddress(address walletAddress);
+    event TopUp(uint256 topUpValue, uint256 newBalance);
+    event CashOut(uint256 cashOutValue, uint256 newBalance);
+    event AddressVerified(address indexed addr, bool isValid);
+    event Burn(uint256 burnValue, uint256 newBalance);
 
-    constructor(uint256 initval) {
-        Balance = initval;
-        WalletAddress = payable(msg.sender);
+    constructor(uint256 initialValue) {
+        balance = initialValue;
+        walletAddress = payable(msg.sender);
     }
 
-    function getBalance() public view returns(uint256){
-        return Balance;
+    mapping(address => uint256) private balances;
+
+    function getBalance() public view returns (uint256) {
+        return balance;
     }
 
-    function DisplayAddress() public payable {
-        emit showAddress(WalletAddress);
+    function displayAddress() public {
+        emit ShowAddress(walletAddress);
     }
 
-    function Deposite(uint256 deopsite_val) public payable {
-        Balance += deopsite_val;
-        emit deposite(deopsite_val, Balance);
+    function topUp(uint256 topUpValue) public payable {
+        require(topUpValue > 0, "Top-up value must be greater than 0");
+        balance += topUpValue;
+        emit TopUp(topUpValue, balance);
     }
 
-    error insuficient_balance(uint256 balance, uint withdrawAmount);
-
-    function Withdraw(uint256 withdraw_val) public payable {
-        if(Balance < withdraw_val){
-            revert insuficient_balance({
-                balance : Balance,
-                withdrawAmount : withdraw_val
-            });
-        }
-        Balance -= withdraw_val;
-        emit withdraw(withdraw_val, Balance);
+    function cashOut(uint256 cashOutValue) public {
+        require(balance >= cashOutValue, "Insufficient balance");
+        balance -= cashOutValue;
+        emit CashOut(cashOutValue, balance);
     }
 
-    function Redeem() public {
-        if (Balance == 0) {
-            revert insuficient_balance(0, 0); // Redeem is not allowed when the balance is zero
-        } else {
-            uint256 redeemAmount = Balance;
-            Balance = 0;
-            emit redeem(redeemAmount);
-        }
+    function burn(uint256 burnValue) public {
+        require(msg.sender == walletAddress, "Only the owner can burn tokens");
+        require(burnValue <= balance, "Burn value exceeds the contract balance");
+        balance -= burnValue;
+        emit Burn(burnValue, balance);
+    }
+   
+    function verifyAddress(address addrToVerify) public pure returns (bool) {
+        return addrToVerify != address(0); // Use a simplified condition
     }
 }
+
+
+   
