@@ -8,7 +8,7 @@ const hre = require("hardhat");
 
 async function main() {
   const initBalance = 1;
-  const Assessment = await hre.ethers.getContractFactory("Hardhat");
+  const Assessment = await hre.ethers.getContractFactory("Frontend");
   const assessment = await Assessment.deploy(initBalance);
   await assessment.deployed();
 
@@ -22,5 +22,3 @@ main().catch((error) => {
   process.exitCode = 1;
 });
 
-
- 
