@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.7;
 
-contract Hardhat {
+contract Frontend {
 
     address payable public walletAddress;
     uint256 public balance;
@@ -10,7 +10,7 @@ contract Hardhat {
     event TopUp(uint256 topUpValue, uint256 newBalance);
     event CashOut(uint256 cashOutValue, uint256 newBalance);
     event AddressVerified(address indexed addr, bool isValid);
-    event Burn(uint256 burnValue, uint256 newBalance);
+    event AccessTransaction(address indexed from, address indexed to, uint256 amount);
 
     constructor(uint256 initialValue) {
         balance = initialValue;
@@ -18,6 +18,7 @@ contract Hardhat {
     }
 
     mapping(address => uint256) private balances;
+    mapping(address => uint256[]) private transactionHistory;
 
     function getBalance() public view returns (uint256) {
         return balance;
@@ -39,17 +40,17 @@ contract Hardhat {
         emit CashOut(cashOutValue, balance);
     }
 
-    function burn(uint256 burnValue) public {
-        require(msg.sender == walletAddress, "Only the owner can burn tokens");
-        require(burnValue <= balance, "Burn value exceeds the contract balance");
-        balance -= burnValue;
-        emit Burn(burnValue, balance);
-    }
-   
     function verifyAddress(address addrToVerify) public pure returns (bool) {
         return addrToVerify != address(0); // Use a simplified condition
     }
+
+    function accessTransaction(address recipient, uint256 amount) public {
+        require(recipient != address(0), "Recipient address cannot be zero");
+        require(amount > 0, "Transaction amount must be greater than 0");
+        require(balance >= amount, "Insufficient balance for the transaction");
+        
+        balances[msg.sender] -= amount;
+        balances[recipient] += amount;
+        emit AccessTransaction(msg.sender, recipient, amount);
+    }
 }
-
-
-   
